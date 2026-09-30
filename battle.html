@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Морской Бой</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="battle.css">
+    <!-- Иконка сайта (Favicon) -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚓</text></svg>">
+</head>
+<body class="bg-slate-950 text-slate-100 font-['Inter'] min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-black">
+
+    <!-- Экран передачи хода (Скрывает корабли при игре с другом) -->
+    <div id="passTurnOverlay" class="fixed inset-0 bg-slate-950/95 backdrop-blur-xl z-[100] flex flex-col items-center justify-center p-4 hidden">
+        <div class="text-center">
+            <i class="fa-solid fa-people-arrows text-6xl text-cyan-500 mb-6 animate-pulse"></i>
+            <h2 id="passTurnTitle" class="font-['Orbitron'] text-2xl md:text-4xl font-black text-white mb-4 uppercase tracking-widest">
+                Передайте устройство Игроку
+            </h2>
+            <p class="text-slate-400 mb-8 max-w-md mx-auto">Убедитесь, что ваш противник не подглядывает. Нажмите кнопку, когда устройство будет у нужного игрока.</p>
+            <button onclick="acceptPass()" class="px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-lg shadow-lg shadow-cyan-500/25 transition">
+                <i class="fa-solid fa-check mr-2"></i> Я готов, показать поле
+            </button>
+        </div>
+    </div>
+
+    <!-- Навигация -->
+    <header class="sticky top-0 z-50 backdrop-blur-xl bg-slate-950/80 border-b border-cyan-900/40 px-4 lg:px-8 py-3 transition-all duration-300">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <a href="#" class="flex items-center gap-3 group">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 via-blue-600 to-indigo-600 p-[2px] shadow-lg shadow-cyan-500/20 group-hover:shadow-cyan-500/40 transition">
+                    <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
+                        <i class="fa-solid font-bold fa-ship text-cyan-400 text-lg group-hover:scale-110 transition-transform"></i>
+                    </div>
+                </div>
+                <div>
+                    <span class="font-['Orbitron'] text-xl font-black tracking-wider bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+                        МОРСКОЙ БОЙ
+                    </span>
+                </div>
+            </a>
+
+            <div class="flex items-center gap-3">
+                <button id="soundToggleBtn" class="p-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700/60 text-cyan-400 hover:text-cyan-300 transition flex items-center gap-2 text-xs font-semibold">
+                    <i class="fa-solid fa-volume-high text-sm"></i>
+                    <span class="hidden sm:inline">Звук: ВКЛ</span>
+                </button>
+                <a href="#game-section" class="px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-sm shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition">
+                    Играть <i class="fa-solid fa-play ml-1"></i>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Описание -->
+    <section id="about" class="relative pt-8 pb-4 px-4 overflow-hidden">
+        <div class="max-w-5xl mx-auto text-center space-y-4">
+            <h1 class="font-['Orbitron'] text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
+                Легендарный <span class="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">Морской Бой</span>
+            </h1>
+            <p class="text-slate-400 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
+                Сражайся против умного бота или вызывай друзей на дуэль на одном устройстве. Расставляй корабли, используй тактику и одержи победу.
+            </p>
+        </div>
+    </section>
+
+    <!-- Игровая зона -->
+    <main id="game-section" class="max-w-7xl mx-auto px-4 py-6 w-full flex-grow">
+        
+        <!-- Выбор режима -->
+        <div id="modeSelector" class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 mb-8 shadow-2xl backdrop-blur-md">
+            <h2 class="text-center font-['Orbitron'] text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Выберите режим сражения</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
+                <!-- Кнопка Бота -->
+                <button onclick="selectMode('ai')" id="btnModeAi" class="group relative p-5 rounded-xl border border-cyan-400 bg-cyan-900/40 text-left flex items-start gap-4 transition">
+                    <div class="w-12 h-12 rounded-lg bg-cyan-500/20 flex items-center justify-center text-cyan-400 text-xl group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-white group-hover:text-cyan-300 transition">Одиночная (С Ботом)</h3>
+                        <p class="text-xs text-slate-400 mt-1">Игра против компьютера с разным уровнем сложности.</p>
+                        <div id="aiDifficultyOpts" class="mt-3 flex gap-2">
+                            <span onclick="setAiDiff('easy', event)" class="ai-diff-btn px-2.5 py-1 rounded text-[11px] font-mono border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer" data-diff="easy">Новичок</span>
+                            <span onclick="setAiDiff('medium', event)" class="ai-diff-btn px-2.5 py-1 rounded text-[11px] font-mono border border-cyan-500 bg-cyan-500/20 text-cyan-300 font-bold cursor-pointer" data-diff="medium">Тактик</span>
+                            <span onclick="setAiDiff('hard', event)" class="ai-diff-btn px-2.5 py-1 rounded text-[11px] font-mono border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer" data-diff="hard">Сложно</span>
+                        </div>
+                    </div>
+                </button>
+
+                <!-- Кнопка Друга -->
+                <button onclick="selectMode('friend')" id="btnModeFriend" class="group relative p-5 rounded-xl border border-slate-800 bg-slate-900/60 hover:border-indigo-500/50 text-left flex items-start gap-4 transition">
+                    <div class="w-12 h-12 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-400 text-xl group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-user-group"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-white group-hover:text-indigo-300 transition">Дуэль (Против друга)</h3>
+                        <p class="text-xs text-slate-400 mt-1">Играйте за одним экраном. Корабли будут скрываться при передаче хода.</p>
+                        <span class="inline-block mt-3 text-[11px] font-mono text-indigo-400">2 игрока • 1 устройство</span>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Арена -->
+        <div id="gameArena" class="bg-slate-900/90 border border-cyan-900/30 rounded-2xl p-4 sm:p-6 shadow-2xl relative">
+            
+            <!-- Статус бар -->
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-800">
+                <div class="flex items-center gap-3">
+                    <span id="turnStatusBadge" class="px-3 py-1 rounded-full text-xs font-mono font-bold uppercase tracking-wider bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
+                        Этап: Расстановка
+                    </span>
+                    <h2 id="turnStatusText" class="font-['Orbitron'] font-bold text-sm sm:text-base text-slate-200">
+                        Расставьте свой флот на игровом поле
+                    </h2>
+                </div>
+                
+                <div class="flex items-center gap-2">
+                    <button id="btnAutoPlace" onclick="autoPlaceShips()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-400 text-xs font-medium border border-slate-700 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Авто-расстановка
+                    </button>
+                    <button id="btnResetPlacement" onclick="resetFleetPlacement()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-rose-400 text-xs font-medium border border-slate-700 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-rotate-left"></i> Очистить
+                    </button>
+                    <!-- Кнопка завершения игры (скрыта по умолчанию) -->
+                    <button id="btnEndGame" onclick="endGame()" class="hidden px-3 py-1.5 rounded-lg bg-rose-900/40 hover:bg-rose-800/60 text-rose-400 text-xs font-medium border border-rose-700/50 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-flag"></i> Завершить игру
+                    </button>
+                    <button id="btnStartBattle" onclick="startGameBattle()" disabled class="px-5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 disabled:text-slate-600 text-slate-950 font-bold text-xs uppercase tracking-wider transition">
+                        В Бой! <i class="fa-solid fa-crosshairs ml-1"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Панель расстановки -->
+            <div id="placementControls" class="mb-6 p-4 rounded-xl bg-slate-950/60 border border-slate-800 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <button id="btnRotateShip" onclick="toggleShipOrientation()" class="px-4 py-2 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 text-xs font-bold transition flex items-center gap-2">
+                        <i class="fa-solid fa-rotate"></i> Повернуть (Клавиша R)
+                    </button>
+                    <span id="orientationLabel" class="text-xs font-mono text-slate-400">Ориентация: <strong class="text-white">Горизонтально</strong></span>
+                </div>
+                <div id="shipsDock" class="flex flex-wrap gap-2 items-center"></div>
+            </div>
+
+            <!-- Игровые поля -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start justify-items-center">
+                <!-- Левое поле (Свое) -->
+                <div class="w-full max-w-[420px]">
+                    <div class="flex items-center justify-between mb-2 px-1">
+                        <span id="leftPlayerTitle" class="font-['Orbitron'] font-bold text-sm text-cyan-400 flex items-center gap-2">
+                            <i class="fa-solid fa-shield-halved"></i> Ваш Флот
+                        </span>
+                        <span id="leftShipsAlive" class="text-xs font-mono text-slate-400">Кораблей: 10/10</span>
+                    </div>
+                    <div class="relative bg-slate-950 p-3 rounded-2xl border border-cyan-900/50 shadow-inner">
+                        <div class="radar-sweep"></div>
+                        <div id="leftBoardGrid" class="board-grid"></div>
+                    </div>
+                </div>
+
+                <!-- Правое поле (Противник) -->
+                <div id="rightBoardWrapper" class="w-full max-w-[420px] opacity-75 pointer-events-none transition-all duration-300">
+                    <div class="flex items-center justify-between mb-2 px-1">
+                        <span id="rightPlayerTitle" class="font-['Orbitron'] font-bold text-sm text-rose-400 flex items-center gap-2">
+                            <i class="fa-solid fa-crosshairs"></i> Флот Противника
+                        </span>
+                        <span id="rightShipsAlive" class="text-xs font-mono text-slate-400">Кораблей: 10/10</span>
+                    </div>
+                    <div class="relative bg-slate-950 p-3 rounded-2xl border border-rose-900/40 shadow-inner">
+                        <div id="rightBoardGrid" class="board-grid"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Лог боя -->
+            <div class="mt-8 pt-4 border-t border-slate-800">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-mono uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                        <i class="fa-solid fa-terminal text-cyan-400"></i> Журнал действий
+                    </span>
+                    <button onclick="clearCombatLog()" class="text-[11px] text-slate-500 hover:text-slate-300 transition">Очистить</button>
+                </div>
+                <div id="combatLog" class="h-24 bg-slate-950/80 rounded-xl border border-slate-800 p-3 overflow-y-auto font-mono text-xs text-slate-300 space-y-1 scrollbar-thin">
+                    <div class="text-slate-500">[Система]: Выберите режим и расставьте корабли.</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Футер -->
+    <footer id="support" class="bg-slate-950 border-t border-slate-900 py-8 px-4 mt-12">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+            <div>
+                <span class="font-['Orbitron'] font-black text-cyan-400 tracking-wider">МОРСКОЙ БОЙ</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="https://wa.me/77777777777" target="_blank" class="flex items-center gap-3 px-4 py-2 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 transition group">
+                    <div class="w-8 h-8 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center text-sm font-bold group-hover:scale-110 transition-transform">
+                        <i class="fa-brands fa-whatsapp"></i>
+                    </div>
+                    <div class="text-left">
+                        <span class="block text-[10px] uppercase font-mono text-slate-400">Поддержка</span>
+                        <span class="text-xs font-bold text-emerald-300">+7 (777) 777-77-77</span>
+                    </div>
+                </a>
+            </div>
+            <div class="text-xs text-slate-600 font-mono">
+                &copy; 2026. Все права защищены.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Модальное окно победы -->
+    <div id="gameModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[200] flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-cyan-500/40 rounded-2xl max-w-md w-full p-6 text-center shadow-2xl relative animate-scale-up">
+            <div id="modalIcon" class="w-16 h-16 rounded-2xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-3xl mx-auto mb-4">
+                <i class="fa-solid fa-trophy"></i>
+            </div>
+            <h2 id="modalTitle" class="font-['Orbitron'] text-2xl font-black text-white mb-2">ПОБЕДА!</h2>
+            <p id="modalMessage" class="text-slate-300 text-sm mb-6">Игра окончена.</p>
+            <button onclick="restartFullGame()" class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-sm shadow-lg transition">
+                Сыграть еще раз <i class="fa-solid fa-rotate-right ml-1"></i>
+            </button>
+        </div>
+    </div>
+
+    <script src="battle.js"></script>
+</body>
+</html>

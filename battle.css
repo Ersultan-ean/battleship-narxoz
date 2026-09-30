@@ -1,0 +1,128 @@
+@layer utilities {
+    .board-grid {
+        display: grid;
+        grid-template-columns: repeat(11, minmax(0, 1fr));
+        gap: 2px;
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        user-select: none;
+    }
+
+    .board-cell {
+        aspect-ratio: 1 / 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-family: monospace;
+        border-radius: 4px;
+        transition: all 0.15s ease;
+        position: relative;
+    }
+
+    .cell-label {
+        color: #64748b;
+        font-weight: 700;
+        background: transparent;
+    }
+
+    .cell-water {
+        background-color: rgba(15, 23, 42, 0.8);
+        border: 1px solid rgba(14, 165, 233, 0.15);
+        cursor: pointer;
+    }
+
+    .cell-water:hover {
+        background-color: rgba(14, 165, 233, 0.2);
+        border-color: rgba(56, 189, 248, 0.5);
+    }
+
+    .cell-valid-preview {
+        background-color: rgba(16, 185, 129, 0.35) !important;
+        border-color: #10b981 !important;
+    }
+
+    .cell-invalid-preview {
+        background-color: rgba(244, 63, 94, 0.35) !important;
+        border-color: #f43f5e !important;
+    }
+
+    .cell-ship {
+        background: linear-gradient(135deg, #1e293b, #334155);
+        border: 1px solid #38bdf8;
+        box-shadow: inset 0 0 8px rgba(56, 189, 248, 0.3);
+    }
+
+    .cell-hit {
+        background: linear-gradient(135deg, #e11d48, #9f1239) !important;
+        border-color: #fda4af !important;
+        animation: pulseHit 1.5s infinite;
+    }
+
+    .cell-hit::after {
+        content: "✕";
+        color: #ffffff;
+        font-weight: 900;
+        font-size: 0.9rem;
+    }
+
+    .cell-miss {
+        background-color: rgba(30, 41, 59, 0.6) !important;
+        border-color: rgba(148, 163, 184, 0.2) !important;
+    }
+
+    .cell-miss::after {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: #94a3b8;
+    }
+
+    .cell-sunk-halo {
+        background-color: rgba(15, 23, 42, 0.9) !important;
+        opacity: 0.5;
+    }
+
+    .cell-sunk-halo::after {
+        content: "•";
+        color: #475569;
+        font-size: 1rem;
+    }
+}
+
+.radar-sweep {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(56, 189, 248, 0.05) 0%, rgba(56, 189, 248, 0) 100%);
+    border-bottom: 2px solid rgba(56, 189, 248, 0.3);
+    animation: radarScan 4s linear infinite;
+    z-index: 10;
+    border-radius: 1rem;
+}
+
+@keyframes radarScan {
+    0% { top: 0; bottom: 100%; opacity: 0.8; }
+    50% { opacity: 1; }
+    100% { top: 100%; bottom: 0; opacity: 0; }
+}
+
+@keyframes pulseHit {
+    0%, 100% { box-shadow: 0 0 5px rgba(225, 29, 72, 0.6); }
+    50% { box-shadow: 0 0 15px rgba(225, 29, 72, 1); }
+}
+
+@keyframes scaleUp {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.animate-scale-up {
+    animation: scaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.scrollbar-thin::-webkit-scrollbar { width: 6px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: #020617; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+.scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #38bdf8; }
