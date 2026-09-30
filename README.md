@@ -20,9 +20,3 @@
 * **Tailwind CSS** — стилизация и адаптивный дизайн
 * **JavaScript (ES6+)** — игровой движок, логика бота и звуковой контекст
 
----
-
-## 💻 Локальный запуск
-1. Клонируйте репозиторий:
-   ```bash
-   git clone [https://github.com/ВАШ_ЛОГИН/battleship-game.git](https://github.com/ВАШ_ЛОГИН/battleship-game.git)
